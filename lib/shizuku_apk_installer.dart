@@ -1,4 +1,7 @@
+import 'installer_mode.dart';
 import 'shizuku_apk_installer_platform_interface.dart';
+
+export 'installer_mode.dart';
 
 class ShizukuApkInstaller {
   /// Returns current android platform version id.
@@ -18,6 +21,14 @@ class ShizukuApkInstaller {
   /// "old_android_with_adb" - Unsupported, Shizuku running on Android < 8.1 with ADB, user must update Android or use root method
   Future<String?> checkPermission() {
     return ShizukuApkInstallerPlatform.instance.checkPermission();
+  }
+
+  /// Select Dhizuku-only or Shizuku/Sui-only backend before [checkPermission] or install calls.
+  ///
+  /// Defaults to [InstallerMode.shizuku]. Apps that previously relied on implicit
+  /// Dhizuku selection must call this with [InstallerMode.dhizuku] first.
+  Future<void> setInstallerMode(InstallerMode mode) {
+    return ShizukuApkInstallerPlatform.instance.setInstallerMode(mode.name);
   }
 
   /// Install APK by its URI
