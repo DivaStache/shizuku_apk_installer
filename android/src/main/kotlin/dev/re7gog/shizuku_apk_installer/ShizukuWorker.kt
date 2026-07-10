@@ -71,6 +71,12 @@ class ShizukuWorker(private val appContext: Context) {
         )
     }
 
+    private val contextS by lazy {
+        appContext.createPackageContext(
+            "com.android.shell", Context.CONTEXT_IGNORE_SECURITY
+        )
+    }
+
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
             HiddenApiBypass.addHiddenApiExemptions("Landroid/content", "Landroid/os")
@@ -191,12 +197,13 @@ class ShizukuWorker(private val appContext: Context) {
     }
 
     private val packageInstaller: PackageInstaller by lazy {
+        // Default to the ADB shell package to more accurately mimic a real ADB install
         val installerPackageName = if (fakeInstallSource == "")
-            appContext.packageName else fakeInstallSource
+            "com.android.shell" else fakeInstallSource
         val userId = if (!isRoot) Process.myUserHandle().hashCode() else 0
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             Refine.unsafeCast(PackageInstallerHidden(
-                iPackageInstaller, installerPackageName, appContext.attributionTag, userId))
+                iPackageInstaller, installerPackageName, contextS.attributionTag, userId))
         } else {
             Refine.unsafeCast(
                 PackageInstallerHidden(iPackageInstaller, installerPackageName, userId))
